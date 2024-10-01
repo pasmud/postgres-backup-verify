@@ -1,0 +1,9 @@
+{
+  "title": "The API does not treat true as a row target of one",
+  "api_args": [
+    "public",
+    "orders",
+    true
+  ],
+  "error": "expected rows must be an integer from 0 to 100000"
+}
