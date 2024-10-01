@@ -1,0 +1,9 @@
+{
+  "title": "The API applies the cap even without CLI parsing",
+  "api_args": [
+    "public",
+    "orders",
+    100001
+  ],
+  "error": "expected rows must be an integer from 0 to 100000"
+}

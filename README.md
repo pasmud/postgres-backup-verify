@@ -69,4 +69,19 @@ in the named table; the fixture verifies that inherited child rows are not
 included in a parent's count. GitHub CI runs the real restore test with the
 required binaries installed.
 
+### Offline regression vectors
+
+```sh
+python3 -m pytest -q tests/test_regression_vectors.py
+```
+
+The JSON fixtures in `tests/regression_vectors/` exercise the CLI and expectation
+API without PostgreSQL binaries or a connection. A fake `psql` serves synthetic
+catalog entries and row totals. The tests verify query order and limits, exact
+and minimum counts (including zero and the maximum), case-sensitive identifiers,
+and the exclusion of inherited rows. They also check exact JSON reports, text
+diagnostics and exit codes for invalid input, malformed replies and command
+failures. Each fixture can run on its own. If editing the scenario definitions,
+regenerate the fixtures with `python3 tests/generate_regression_vectors.py`.
+
 [MIT license](LICENSE).
