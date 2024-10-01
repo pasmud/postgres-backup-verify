@@ -1,0 +1,10 @@
+{
+  "title": "The API does not coerce numeric zero to exact mode",
+  "api_args": [
+    "public",
+    "orders",
+    3,
+    0
+  ],
+  "error": "at_least must be a boolean and requires a row count when true"
+}
