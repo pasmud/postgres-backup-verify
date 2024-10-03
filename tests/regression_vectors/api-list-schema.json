@@ -1,0 +1,10 @@
+{
+  "title": "A direct API schema cannot be a list of names",
+  "api_args": [
+    [
+      "public"
+    ],
+    "orders"
+  ],
+  "error": "schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
