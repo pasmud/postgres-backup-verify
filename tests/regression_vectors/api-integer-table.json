@@ -1,0 +1,8 @@
+{
+  "title": "A direct API table cannot be an integer",
+  "api_args": [
+    "public",
+    42
+  ],
+  "error": "schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
