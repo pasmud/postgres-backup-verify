@@ -1,0 +1,9 @@
+{
+  "title": "The API rejects a float even if its value is integral",
+  "api_args": [
+    "public",
+    "orders",
+    2.0
+  ],
+  "error": "expected rows must be an integer from 0 to 100000"
+}
