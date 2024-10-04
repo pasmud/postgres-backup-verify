@@ -1,0 +1,10 @@
+{
+  "title": "The API minimum mode requires a row target",
+  "api_args": [
+    "public",
+    "orders",
+    null,
+    true
+  ],
+  "error": "at_least must be a boolean and requires a row count when true"
+}
