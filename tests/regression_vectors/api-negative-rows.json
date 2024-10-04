@@ -1,0 +1,9 @@
+{
+  "title": "The API rejects a negative integer row target",
+  "api_args": [
+    "public",
+    "orders",
+    -1
+  ],
+  "error": "expected rows must be an integer from 0 to 100000"
+}
