@@ -15,7 +15,25 @@ def test_restore_only_text_regression(monkeypatch, capsys):
 
     assert backup.main(ARGS) == 0
     assert capsys.readouterr() == ("PASS: dump restored successfully\n", "")
-    verify.assert_called_once_with(Path("synthetic.dump"), Path("scratch"), [])
+    verify.assert_called_once_with(Path("synthetic.dump"), Path("scratch"), [], min_free_mib=0)
+
+
+def test_configured_space_floor_is_passed_to_verify(monkeypatch):
+    verify = Mock(return_value=[])
+    monkeypatch.setattr(backup, "verify", verify)
+
+    assert backup.main([*ARGS, "--min-free-mib", "512"]) == 0
+    verify.assert_called_once_with(Path("synthetic.dump"), Path("scratch"), [], min_free_mib=512)
+
+
+def test_negative_space_floor_is_a_json_error(capsys):
+    assert backup.main([*ARGS, "--min-free-mib", "-1", "--json"]) == 2
+    out, err = capsys.readouterr()
+    assert json.loads(out) == {
+        "status": "error", "checks": [],
+        "error": "minimum free scratch space must be a nonnegative integer in MiB",
+    }
+    assert err == ""
 
 
 def test_mixed_json_outcomes_and_cli_order(monkeypatch, capsys):
@@ -55,7 +73,9 @@ def test_mixed_json_outcomes_and_cli_order(monkeypatch, capsys):
              "observed_rows_is_lower_bound": False},
         ],
     }
-    verify.assert_called_once_with(Path("synthetic.dump"), Path("scratch"), [empty, present, lower, missing])
+    verify.assert_called_once_with(
+        Path("synthetic.dump"), Path("scratch"), [empty, present, lower, missing], min_free_mib=0,
+    )
 
 
 def test_text_explains_an_excess_count_without_claiming_an_exact_total(monkeypatch, capsys):

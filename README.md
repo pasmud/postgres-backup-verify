@@ -12,6 +12,10 @@ and client binaries on `PATH`. If `pg_config` is installed and the tools are
 not otherwise on `PATH`, try `export PATH="$(pg_config --bindir):$PATH"`.
 Use a PostgreSQL version compatible with the source dump. Choose an existing
 scratch directory with enough free space for both the restored data and indexes.
+Optionally set `--min-free-mib 512` (or another nonnegative number of MiB) to
+fail before starting PostgreSQL if the scratch filesystem has less free space.
+The default, `0`, disables the check. This is a point-in-time check, not a quota
+or an estimate of the restored size.
 
 ```sh
 python3 verify_backup.py sample.dump --scratch-dir /tmp \

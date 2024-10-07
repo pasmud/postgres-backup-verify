@@ -23,6 +23,32 @@ def test_nonsticky_shared_scratch_rejected(tmp_path):
         backup.validate_scratch(tmp_path)
 
 
+@pytest.mark.parametrize(("minimum", "free_bytes", "error"), [
+    (2, 2 * 1024**2 - 1, "1 MiB available, 2 MiB required"),
+    (2, 2 * 1024**2, "tool discovery reached"),
+    (0, 0, "tool discovery reached"),
+])
+def test_scratch_space_preflight(tmp_path, monkeypatch, minimum, free_bytes, error):
+    archive = tmp_path / "synthetic.dump"
+    archive.write_bytes(b"PGDMP")
+    usage = Mock(return_value=Mock(free=free_bytes))
+    tools = Mock(side_effect=backup.VerificationError("tool discovery reached"))
+    monkeypatch.setattr(backup.os, "geteuid", lambda: 1000)
+    monkeypatch.setattr(backup, "validate_scratch", lambda path: path)
+    monkeypatch.setattr(backup.shutil, "disk_usage", usage)
+    monkeypatch.setattr(backup, "resolve_tools", tools)
+
+    with pytest.raises(backup.VerificationError, match=error):
+        backup.verify(archive, tmp_path, min_free_mib=minimum)
+
+    if minimum:
+        usage.assert_called_once_with(tmp_path)
+    else:
+        usage.assert_not_called()
+    assert tools.call_count == (error == "tool discovery reached")
+    assert list(tmp_path.iterdir()) == [archive]
+
+
 def test_cluster_forces_private_socket_and_stops_on_failure(tmp_path, monkeypatch):
     scratch = tmp_path.parent / "unit"
     scratch.mkdir()

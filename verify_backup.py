@@ -22,6 +22,7 @@ DATABASE = "postgres"
 TOOLS = ("initdb", "postgres", "pg_isready", "pg_restore", "psql")
 COMMAND_TIMEOUT = 120
 CHECK_TIMEOUT = 10
+MIB = 1024 * 1024
 MAX_EXPECTATIONS = 32
 MAX_EXPECTED_ROWS = 100_000
 IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]{0,62}")
@@ -217,14 +218,22 @@ def check_expectations(expectations, psql, connection, env):
     return results
 
 
-def verify(dump, scratch, expectations=()):
+def verify(dump, scratch, expectations=(), *, min_free_mib=0):
     expectations = tuple(islice(expectations, MAX_EXPECTATIONS + 1))
     if len(expectations) > MAX_EXPECTATIONS:
         raise VerificationError(f"at most {MAX_EXPECTATIONS} expectations are allowed")
     if any(not isinstance(expectation, TableExpectation) for expectation in expectations):
         raise VerificationError("expected TableExpectation objects")
+    if type(min_free_mib) is not int or min_free_mib < 0:
+        raise VerificationError("minimum free scratch space must be a nonnegative integer in MiB")
     dump = validate_dump(dump)
     scratch = validate_scratch(scratch)
+    if min_free_mib:
+        free = shutil.disk_usage(scratch).free
+        if free < min_free_mib * MIB:
+            raise VerificationError(
+                f"insufficient free scratch space: {free // MIB} MiB available, {min_free_mib} MiB required"
+            )
     if os.geteuid() == 0:
         raise VerificationError("PostgreSQL must run as an unprivileged user, not root")
     tools = resolve_tools()
@@ -300,6 +309,10 @@ def main(argv=None):
     parser.add_argument("dump", type=Path, help="trusted pg_dump -Fc archive")
     parser.add_argument("--scratch-dir", type=Path, required=True, help="existing local scratch directory")
     parser.add_argument(
+        "--min-free-mib", type=int, default=0, metavar="MIB",
+        help="require this much free space on the scratch filesystem before starting (default: disabled)",
+    )
+    parser.add_argument(
         "--expect-table", dest="expectations", action="append", default=[],
         type=parse_expectation, metavar="[SCHEMA.]TABLE", help="require an ordinary table (repeatable)",
     )
@@ -311,7 +324,7 @@ def main(argv=None):
     parser.add_argument("--json", action="store_true", help="print a JSON report instead of text")
     args = parser.parse_args(argv)
     try:
-        checks = verify(args.dump, args.scratch_dir, args.expectations)
+        checks = verify(args.dump, args.scratch_dir, args.expectations, min_free_mib=args.min_free_mib)
     except (VerificationError, OSError) as exc:
         report_error(args.json, "error", str(exc))
         return 2
