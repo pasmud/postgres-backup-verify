@@ -1,0 +1,10 @@
+{
+  "title": "The API does not coerce a string to minimum mode",
+  "api_args": [
+    "public",
+    "orders",
+    3,
+    "true"
+  ],
+  "error": "at_least must be a boolean and requires a row count when true"
+}
