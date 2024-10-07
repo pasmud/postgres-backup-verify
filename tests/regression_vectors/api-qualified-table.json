@@ -1,0 +1,8 @@
+{
+  "title": "The API table parameter cannot include a schema",
+  "api_args": [
+    "public",
+    "sales.orders"
+  ],
+  "error": "schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
