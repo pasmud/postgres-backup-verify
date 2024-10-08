@@ -1,0 +1,8 @@
+{
+  "title": "A six-digit minimum target can exceed the numeric cap",
+  "args": [
+    "--expect-rows-at-least",
+    "orders=999999"
+  ],
+  "usage_error": "argument --expect-rows-at-least: expected rows must be an integer from 0 to 100000"
+}
