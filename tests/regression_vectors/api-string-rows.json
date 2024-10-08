@@ -1,0 +1,9 @@
+{
+  "title": "Only the CLI coerces a decimal string to a row target",
+  "api_args": [
+    "public",
+    "orders",
+    "2"
+  ],
+  "error": "expected rows must be an integer from 0 to 100000"
+}
