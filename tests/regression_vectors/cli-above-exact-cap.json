@@ -1,0 +1,8 @@
+{
+  "title": "A six-digit exact target can exceed the numeric cap",
+  "args": [
+    "--expect-rows",
+    "orders=100001"
+  ],
+  "usage_error": "argument --expect-rows: expected rows must be an integer from 0 to 100000"
+}
