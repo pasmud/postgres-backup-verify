@@ -11,17 +11,56 @@ import sys
 import tempfile
 import time
 from contextlib import contextmanager
+from dataclasses import dataclass
+from itertools import islice
 from pathlib import Path
 
 SOCKET_NAME = ".s.PGSQL.5432"
 ROLE = "backup_verify"
 DATABASE = "postgres"
-TOOLS = ("initdb", "postgres", "pg_isready", "pg_restore")
+TOOLS = ("initdb", "postgres", "pg_isready", "pg_restore", "psql")
 COMMAND_TIMEOUT = 120
+CHECK_TIMEOUT = 10
+MAX_EXPECTATIONS = 32
+MAX_EXPECTED_ROWS = 100_000
+IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]{0,62}")
 
 
 class VerificationError(Exception):
     """Invalid input or a failure to complete the verification."""
+
+
+@dataclass(frozen=True)
+class TableExpectation:
+    schema: str
+    table: str
+    rows: int | None = None
+
+    def __post_init__(self):
+        for name in (self.schema, self.table):
+            if not isinstance(name, str) or not IDENTIFIER.fullmatch(name):
+                raise VerificationError(
+                    "schema and table names must be 1–63 ASCII letters, digits, or underscores "
+                    "and start with a letter or underscore"
+                )
+        if self.rows is not None and (
+            type(self.rows) is not int or not 0 <= self.rows <= MAX_EXPECTED_ROWS
+        ):
+            raise VerificationError(f"expected rows must be an integer from 0 to {MAX_EXPECTED_ROWS}")
+
+
+@dataclass(frozen=True)
+class CheckResult:
+    expectation: TableExpectation
+    table_exists: bool
+    row_count: int | None = None
+    row_count_is_lower_bound: bool = False
+
+    @property
+    def passed(self):
+        return self.table_exists and (
+            self.expectation.rows is None or self.row_count == self.expectation.rows
+        )
 
 
 def validate_dump(path):
@@ -137,7 +176,52 @@ def local_cluster(scratch, tools):
         shutil.rmtree(workspace)
 
 
-def verify(dump, scratch):
+def check_expectations(expectations, psql, connection, env):
+    argv = [
+        psql, *connection, "-d", DATABASE, "-X", "-w", "-qAt", "-v", "ON_ERROR_STOP=1",
+    ]
+    query_env = {
+        **env,
+        "PGOPTIONS": "-c default_transaction_read_only=on -c statement_timeout=5000 "
+        "-c search_path=pg_catalog",
+    }
+
+    def query(sql):
+        return run_command([*argv, "-c", sql], query_env, timeout=CHECK_TIMEOUT).stdout.strip()
+
+    results = []
+    for expectation in expectations:
+        schema, table, rows = expectation.schema, expectation.table, expectation.rows
+        # The identifier grammar excludes quotes and all SQL metacharacters. Use exact case.
+        exists = query(
+            "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class AS c "
+            "JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace "
+            f"WHERE n.nspname = '{schema}' AND c.relname = '{table}' AND c.relkind = 'r')"
+        )
+        if exists not in ("t", "f"):
+            raise VerificationError("unexpected table lookup result from psql")
+        if exists == "f" or rows is None:
+            results.append(CheckResult(expectation, exists == "t"))
+            continue
+        # ONLY keeps the count on this ordinary table; LIMIT detects excess without a full count.
+        limit = rows + 1
+        value = query(
+            'SELECT pg_catalog.count(*) FROM '
+            f'(SELECT 1 FROM ONLY "{schema}"."{table}" LIMIT {limit}) AS bounded_rows'
+        )
+        if not re.fullmatch(r"[0-9]+", value) or len(value) > len(str(limit)) or int(value) > limit:
+            raise VerificationError("unexpected row count result from psql")
+        count = int(value)
+        results.append(CheckResult(expectation, True, count, count == limit))
+    return results
+
+
+def verify(dump, scratch, expectations=()):
+    expectations = tuple(islice(expectations, MAX_EXPECTATIONS + 1))
+    if len(expectations) > MAX_EXPECTATIONS:
+        raise VerificationError(f"at most {MAX_EXPECTATIONS} expectations are allowed")
+    if any(not isinstance(expectation, TableExpectation) for expectation in expectations):
+        raise VerificationError("expected TableExpectation objects")
     dump = validate_dump(dump)
     scratch = validate_scratch(scratch)
     if os.geteuid() == 0:
@@ -148,6 +232,7 @@ def verify(dump, scratch):
             tools["pg_restore"], *connection, "-d", DATABASE, "--no-password", "--single-transaction",
             "--no-owner", "--no-privileges", "--", str(dump),
         ], env)
+        return check_expectations(expectations, tools["psql"], connection, env)
 
 
 def handle_termination(_signum, _frame):
