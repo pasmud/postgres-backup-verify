@@ -1,0 +1,8 @@
+{
+  "title": "A dollar sign is outside the supported identifier grammar",
+  "args": [
+    "--expect-table",
+    "orders$2024"
+  ],
+  "usage_error": "argument --expect-table: schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
