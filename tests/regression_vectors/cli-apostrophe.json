@@ -1,0 +1,8 @@
+{
+  "title": "An apostrophe is rejected in a catalog name",
+  "args": [
+    "--expect-table",
+    "author's_notes"
+  ],
+  "usage_error": "argument --expect-table: schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
