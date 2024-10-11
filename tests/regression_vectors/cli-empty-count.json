@@ -1,0 +1,8 @@
+{
+  "title": "An equals separator requires at least one decimal digit",
+  "args": [
+    "--expect-rows-at-least",
+    "orders="
+  ],
+  "usage_error": "argument --expect-rows-at-least: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
