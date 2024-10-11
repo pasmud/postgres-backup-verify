@@ -1,0 +1,8 @@
+{
+  "title": "A leading dot does not stand for the default schema",
+  "args": [
+    "--expect-table",
+    ".orders"
+  ],
+  "usage_error": "argument --expect-table: schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
