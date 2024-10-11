@@ -1,0 +1,8 @@
+{
+  "title": "A second equals sign makes the row target invalid",
+  "args": [
+    "--expect-rows",
+    "orders==4"
+  ],
+  "usage_error": "argument --expect-rows: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
