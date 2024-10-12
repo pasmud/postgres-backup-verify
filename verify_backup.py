@@ -1,6 +1,7 @@
 """Restore a trusted custom-format backup in a disposable local PostgreSQL cluster."""
 
 import argparse
+import json
 import os
 import re
 import shutil
@@ -239,21 +240,96 @@ def handle_termination(_signum, _frame):
     raise KeyboardInterrupt
 
 
+def parse_expectation(spec, *, has_rows=False):
+    try:
+        rows = None
+        if has_rows:
+            spec, separator, count = spec.partition("=")
+            if not separator or not re.fullmatch(r"[0-9]{1,6}", count):
+                raise VerificationError(f"use [SCHEMA.]TABLE=COUNT with COUNT from 0 to {MAX_EXPECTED_ROWS}")
+            rows = int(count)
+        schema, separator, table = spec.partition(".")
+        if not separator:
+            schema, table = "public", schema
+        return TableExpectation(schema, table, rows)
+    except VerificationError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from exc
+
+
+def check_report(result):
+    expectation = result.expectation
+    return {
+        "status": "pass" if result.passed else "fail",
+        "kind": "table" if expectation.rows is None else "rows",
+        "schema": expectation.schema,
+        "table": expectation.table,
+        "table_exists": result.table_exists,
+        "expected_rows": expectation.rows,
+        "observed_rows": result.row_count,
+        "observed_rows_is_lower_bound": result.row_count_is_lower_bound,
+    }
+
+
+def describe_check(result):
+    expectation = result.expectation
+    status = "PASS" if result.passed else "FAIL"
+    label = f"{expectation.schema}.{expectation.table}"
+    if not result.table_exists:
+        detail = "ordinary table not found"
+        if expectation.rows is not None:
+            detail = f"expected {expectation.rows} rows; {detail}"
+    elif expectation.rows is None:
+        detail = "ordinary table exists"
+    else:
+        qualifier = "at least " if result.row_count_is_lower_bound else ""
+        detail = f"expected {expectation.rows} rows, found {qualifier}{result.row_count}"
+    return f"{status}: {label}: {detail}"
+
+
+def report_error(as_json, status, message):
+    if as_json:
+        print(json.dumps({"status": status, "checks": [], "error": message}))
+    elif status == "interrupted":
+        print(message, file=sys.stderr)
+    else:
+        print(f"verification error: {message}", file=sys.stderr)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dump", type=Path, help="trusted pg_dump -Fc archive")
     parser.add_argument("--scratch-dir", type=Path, required=True, help="existing local scratch directory")
+    parser.add_argument(
+        "--expect-table", dest="expectations", action="append", default=[],
+        type=parse_expectation, metavar="[SCHEMA.]TABLE", help="require an ordinary table (repeatable)",
+    )
+    parser.add_argument(
+        "--expect-rows", dest="expectations", action="append",
+        type=lambda spec: parse_expectation(spec, has_rows=True), metavar="[SCHEMA.]TABLE=COUNT",
+        help="require an exact row count (repeatable)",
+    )
+    parser.add_argument("--json", action="store_true", help="print a JSON report instead of text")
     args = parser.parse_args(argv)
     try:
-        verify(args.dump, args.scratch_dir)
+        checks = verify(args.dump, args.scratch_dir, args.expectations)
     except (VerificationError, OSError) as exc:
-        print(f"verification error: {exc}", file=sys.stderr)
+        report_error(args.json, "error", str(exc))
         return 2
     except KeyboardInterrupt:
-        print("verification interrupted", file=sys.stderr)
+        report_error(args.json, "interrupted", "verification interrupted")
         return 130
-    print("PASS: dump restored successfully")
-    return 0
+
+    failed = sum(not check.passed for check in checks)
+    if args.json:
+        print(json.dumps({"status": "fail" if failed else "pass", "checks": [check_report(c) for c in checks]}))
+    else:
+        for check in checks:
+            print(describe_check(check))
+        if failed:
+            print(f"FAIL: dump restored; {failed} of {len(checks)} expectations failed")
+        else:
+            print("PASS: dump restored successfully")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
