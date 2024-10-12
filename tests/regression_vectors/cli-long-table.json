@@ -1,0 +1,8 @@
+{
+  "title": "A 64-character table is rejected rather than truncated",
+  "args": [
+    "--expect-table",
+    "jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
+  ],
+  "usage_error": "argument --expect-table: schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
