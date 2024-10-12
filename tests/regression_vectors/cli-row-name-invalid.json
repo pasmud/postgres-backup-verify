@@ -1,0 +1,8 @@
+{
+  "title": "A valid exact count does not bypass name validation",
+  "args": [
+    "--expect-rows",
+    "sales.bad-name=1"
+  ],
+  "usage_error": "argument --expect-rows: schema and table names must be 1–63 ASCII letters, digits, or underscores and start with a letter or underscore"
+}
