@@ -1,0 +1,8 @@
+{
+  "title": "Underscores are not accepted inside a CLI row target",
+  "args": [
+    "--expect-rows",
+    "orders=1_000"
+  ],
+  "usage_error": "argument --expect-rows: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
