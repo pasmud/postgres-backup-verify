@@ -1,0 +1,8 @@
+{
+  "title": "An exact row flag requires an equals separator",
+  "args": [
+    "--expect-rows",
+    "orders"
+  ],
+  "usage_error": "argument --expect-rows: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
