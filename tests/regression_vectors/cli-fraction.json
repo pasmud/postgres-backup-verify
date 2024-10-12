@@ -1,0 +1,8 @@
+{
+  "title": "A decimal point does not denote an integer row target",
+  "args": [
+    "--expect-rows",
+    "orders=1.0"
+  ],
+  "usage_error": "argument --expect-rows: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
