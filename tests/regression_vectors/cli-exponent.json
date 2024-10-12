@@ -1,0 +1,8 @@
+{
+  "title": "Scientific notation is not a CLI row target",
+  "args": [
+    "--expect-rows-at-least",
+    "orders=1e3"
+  ],
+  "usage_error": "argument --expect-rows-at-least: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
