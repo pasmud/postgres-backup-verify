@@ -1,0 +1,8 @@
+{
+  "title": "CLI row targets cannot end with whitespace",
+  "args": [
+    "--expect-rows-at-least",
+    "orders=4\t"
+  ],
+  "usage_error": "argument --expect-rows-at-least: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
