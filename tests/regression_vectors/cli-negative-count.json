@@ -1,0 +1,8 @@
+{
+  "title": "A minus sign is not part of the CLI count grammar",
+  "args": [
+    "--expect-rows",
+    "orders=-1"
+  ],
+  "usage_error": "argument --expect-rows: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
