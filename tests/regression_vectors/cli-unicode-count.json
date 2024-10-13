@@ -1,0 +1,8 @@
+{
+  "title": "Unicode decimal digits are not CLI row targets",
+  "args": [
+    "--expect-rows-at-least",
+    "orders=١٢"
+  ],
+  "usage_error": "argument --expect-rows-at-least: use [SCHEMA.]TABLE=COUNT with COUNT from 0 to 100000"
+}
