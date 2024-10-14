@@ -1,0 +1,62 @@
+{
+  "title": "Repeated exact flags retain distinct targets in CLI order",
+  "args": [
+    "--expect-rows",
+    "labels=7",
+    "--expect-rows",
+    "labels=6"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 6
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      8
+    ],
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      7
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "labels",
+        "table_exists": true,
+        "expected_rows": 7,
+        "observed_rows": 6,
+        "observed_rows_is_lower_bound": false
+      },
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "labels",
+        "table_exists": true,
+        "expected_rows": 6,
+        "observed_rows": 6,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.labels: expected 7 rows, found 6",
+    "PASS: public.labels: expected 6 rows, found 6",
+    "FAIL: dump restored; 1 of 2 expectations failed"
+  ]
+}
