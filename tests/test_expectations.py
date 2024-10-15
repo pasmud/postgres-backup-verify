@@ -27,6 +27,11 @@ def test_too_many_expectations_rejected_before_accessing_files():
         backup.verify(None, None, repeat(expectation))
 
 
+def test_minimum_mode_requires_a_row_count():
+    with pytest.raises(backup.VerificationError, match="requires a row count"):
+        backup.TableExpectation("public", "items", at_least=True)
+
+
 def test_results_and_bounded_local_queries(monkeypatch):
     expectations = [
         backup.TableExpectation("public", "missing", 0),
@@ -64,6 +69,25 @@ def test_results_and_bounded_local_queries(monkeypatch):
     assert 'ONLY "Demo"."Empty" LIMIT 1' in queries[3]
     assert 'ONLY "Demo"."Items" LIMIT 3' in queries[5]
     assert 'ONLY "Demo"."Items" LIMIT 2' in queries[-1]
+
+
+@pytest.mark.parametrize(("threshold", "replies", "passed", "count", "lower_bound"), [
+    (0, ("f",), False, None, False),
+    (0, ("t", "0"), True, 0, True),
+    (3, ("t", "2"), False, 2, False),
+    (3, ("t", "3"), True, 3, True),
+])
+def test_minimum_rows_count_stops_at_threshold(monkeypatch, threshold, replies, passed, count, lower_bound):
+    run = Mock(side_effect=[CompletedProcess([], 0, value) for value in replies])
+    monkeypatch.setattr(backup, "run_command", run)
+    expectation = backup.TableExpectation("Demo", "Items", threshold, at_least=True)
+
+    [result] = backup.check_expectations([expectation], "psql", [], {})
+
+    assert (result.passed, result.row_count, result.row_count_is_lower_bound) == (passed, count, lower_bound)
+    assert run.call_count == len(replies)
+    if count is not None:
+        assert f'ONLY "Demo"."Items" LIMIT {threshold})' in run.call_args.args[0][-1]
 
 
 @pytest.mark.parametrize("replies", [("?",), ("t", "3"), ("t", "error")])

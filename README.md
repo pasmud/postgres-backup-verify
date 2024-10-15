@@ -25,9 +25,11 @@ python3 verify_backup.py sample.dump --scratch-dir /tmp \
 This example expects an archive produced by `pg_dump -Fc` that contains an
 ordinary table `public.labels` with two rows. The [integration test](tests/test_postgres.py)
 creates exactly that archive from synthetic data in a separate disposable
-cluster. `--expect-table` and `--expect-rows` can be repeated. Unqualified names
-refer to `public`; names are matched using exact case. If you omit expectations,
-the tool checks only whether the restore succeeded.
+cluster. Use `--expect-rows-at-least public.labels=1` when a table is expected to
+grow across backups. All three expectation flags can be repeated and mixed, up
+to 32 checks per run. Unqualified names refer to `public`; names are matched
+using exact case. If you omit expectations, the tool checks only whether the
+restore succeeded.
 
 | Exit | Meaning |
 |---|---|
@@ -36,11 +38,15 @@ the tool checks only whether the restore succeeded.
 | `2` | Invalid input or an operational failure. |
 | `130` | Interrupted. |
 
-Row checks are capped at 100,000 expected rows and stop once one extra row is
-found. In JSON, `observed_rows_is_lower_bound` distinguishes that lower bound
-from an exact observed count. Ground-truth row expectations are supplied by
-the caller. Views and partitions are outside the table-check API, and indexes,
-grants, application behavior, and data contents are outside the check scope.
+Row targets are capped at 100,000. Exact checks stop at one row beyond the
+target; minimum checks stop at the target itself, so a minimum of zero still
+requires the table to exist but does not read any rows. In JSON, minimum checks
+have `kind: "min_rows"` and `expected_rows` is the minimum. For either kind of
+row check, `observed_rows_is_lower_bound` is true when the count reaches the
+query limit; otherwise an observed count is exact. Ground-truth expectations
+are supplied by the caller. Views and partitions are outside the table-check
+API, and indexes, grants, application behavior, and data contents are outside
+the check scope.
 
 ## Scope and verification
 

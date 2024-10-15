@@ -37,6 +37,7 @@ class TableExpectation:
     schema: str
     table: str
     rows: int | None = None
+    at_least: bool = False
 
     def __post_init__(self):
         for name in (self.schema, self.table):
@@ -49,6 +50,8 @@ class TableExpectation:
             type(self.rows) is not int or not 0 <= self.rows <= MAX_EXPECTED_ROWS
         ):
             raise VerificationError(f"expected rows must be an integer from 0 to {MAX_EXPECTED_ROWS}")
+        if type(self.at_least) is not bool or (self.at_least and self.rows is None):
+            raise VerificationError("at_least must be a boolean and requires a row count when true")
 
 
 @dataclass(frozen=True)
@@ -60,9 +63,14 @@ class CheckResult:
 
     @property
     def passed(self):
-        return self.table_exists and (
-            self.expectation.rows is None or self.row_count == self.expectation.rows
-        )
+        if not self.table_exists:
+            return False
+        rows = self.expectation.rows
+        if rows is None:
+            return True
+        if self.expectation.at_least:
+            return self.row_count is not None and self.row_count >= rows
+        return self.row_count == rows
 
 
 def validate_dump(path):
@@ -205,8 +213,8 @@ def check_expectations(expectations, psql, connection, env):
         if exists == "f" or rows is None:
             results.append(CheckResult(expectation, exists == "t"))
             continue
-        # ONLY keeps the count on this ordinary table; LIMIT detects excess without a full count.
-        limit = rows + 1
+        # ONLY excludes descendants. Exact checks look for one extra row; minimums stop at the target.
+        limit = rows if expectation.at_least else rows + 1
         value = query(
             'SELECT pg_catalog.count(*) FROM '
             f'(SELECT 1 FROM ONLY "{schema}"."{table}" LIMIT {limit}) AS bounded_rows'
@@ -249,10 +257,10 @@ def handle_termination(_signum, _frame):
     raise KeyboardInterrupt
 
 
-def parse_expectation(spec, *, has_rows=False):
+def parse_expectation(spec, *, has_rows=False, at_least=False):
     try:
         rows = None
-        if has_rows:
+        if has_rows or at_least:
             spec, separator, count = spec.partition("=")
             if not separator or not re.fullmatch(r"[0-9]{1,6}", count):
                 raise VerificationError(f"use [SCHEMA.]TABLE=COUNT with COUNT from 0 to {MAX_EXPECTED_ROWS}")
@@ -260,16 +268,17 @@ def parse_expectation(spec, *, has_rows=False):
         schema, separator, table = spec.partition(".")
         if not separator:
             schema, table = "public", schema
-        return TableExpectation(schema, table, rows)
+        return TableExpectation(schema, table, rows, at_least=at_least)
     except VerificationError as exc:
         raise argparse.ArgumentTypeError(str(exc)) from exc
 
 
 def check_report(result):
     expectation = result.expectation
+    kind = "table" if expectation.rows is None else "min_rows" if expectation.at_least else "rows"
     return {
         "status": "pass" if result.passed else "fail",
-        "kind": "table" if expectation.rows is None else "rows",
+        "kind": kind,
         "schema": expectation.schema,
         "table": expectation.table,
         "table_exists": result.table_exists,
@@ -283,15 +292,16 @@ def describe_check(result):
     expectation = result.expectation
     status = "PASS" if result.passed else "FAIL"
     label = f"{expectation.schema}.{expectation.table}"
+    minimum = "at least " if expectation.at_least else ""
     if not result.table_exists:
         detail = "ordinary table not found"
         if expectation.rows is not None:
-            detail = f"expected {expectation.rows} rows; {detail}"
+            detail = f"expected {minimum}{expectation.rows} rows; {detail}"
     elif expectation.rows is None:
         detail = "ordinary table exists"
     else:
         qualifier = "at least " if result.row_count_is_lower_bound else ""
-        detail = f"expected {expectation.rows} rows, found {qualifier}{result.row_count}"
+        detail = f"expected {minimum}{expectation.rows} rows, found {qualifier}{result.row_count}"
     return f"{status}: {label}: {detail}"
 
 
@@ -320,6 +330,11 @@ def main(argv=None):
         "--expect-rows", dest="expectations", action="append",
         type=lambda spec: parse_expectation(spec, has_rows=True), metavar="[SCHEMA.]TABLE=COUNT",
         help="require an exact row count (repeatable)",
+    )
+    parser.add_argument(
+        "--expect-rows-at-least", dest="expectations", action="append",
+        type=lambda spec: parse_expectation(spec, at_least=True), metavar="[SCHEMA.]TABLE=COUNT",
+        help="require a minimum row count (repeatable)",
     )
     parser.add_argument("--json", action="store_true", help="print a JSON report instead of text")
     args = parser.parse_args(argv)

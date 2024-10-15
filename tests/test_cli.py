@@ -90,6 +90,37 @@ def test_text_explains_an_excess_count_without_claiming_an_exact_total(monkeypat
     )
 
 
+def test_minimum_rows_json_contract_and_cli_order(monkeypatch, capsys):
+    exact = backup.TableExpectation("public", "items", 4)
+    minimum = backup.TableExpectation("Demo", "Items", 3, at_least=True)
+    verify = Mock(return_value=[backup.CheckResult(exact, True, 4), backup.CheckResult(minimum, True, 3, True)])
+    monkeypatch.setattr(backup, "verify", verify)
+
+    assert backup.main([*ARGS, "--json", "--expect-rows", "items=4", "--expect-rows-at-least", "Demo.Items=3"]) == 0
+    verify.assert_called_once_with(Path("synthetic.dump"), Path("scratch"), [exact, minimum], min_free_mib=0)
+    out, err = capsys.readouterr()
+    report = json.loads(out)
+    assert err == ""
+    assert report["status"] == "pass"
+    assert [check["kind"] for check in report["checks"]] == ["rows", "min_rows"]
+    assert report["checks"][1] == {
+        "status": "pass", "kind": "min_rows", "schema": "Demo", "table": "Items",
+        "table_exists": True, "expected_rows": 3, "observed_rows": 3, "observed_rows_is_lower_bound": True,
+    }
+
+
+def test_minimum_shortfall_text_reports_exact_observation(monkeypatch, capsys):
+    minimum = backup.TableExpectation("public", "items", 3, at_least=True)
+    monkeypatch.setattr(backup, "verify", Mock(return_value=[backup.CheckResult(minimum, True, 2)]))
+
+    assert backup.main([*ARGS, "--expect-rows-at-least", "items=3"]) == 1
+    assert capsys.readouterr() == (
+        ("FAIL: public.items: expected at least 3 rows, found 2\n"
+         "FAIL: dump restored; 1 of 1 expectations failed\n"),
+        "",
+    )
+
+
 def test_missing_dump_is_a_json_error_not_a_mismatch(tmp_path, capsys):
     assert backup.main([str(tmp_path / "missing.dump"), "--scratch-dir", str(tmp_path), "--json"]) == 2
     out, err = capsys.readouterr()
@@ -115,6 +146,9 @@ def test_interruption_has_distinct_status(monkeypatch, capsys):
     ("--expect-rows", "items=-1"),
     ("--expect-rows", "items=100001"),
     ("--expect-rows", "items=" + "9" * 5000),
+    ("--expect-rows-at-least", "items"),
+    ("--expect-rows-at-least", "items;=1"),
+    ("--expect-rows-at-least", "items=100001"),
 ])
 def test_invalid_expectation_is_a_usage_error(monkeypatch, capsys, flag, spec):
     verify = Mock()
