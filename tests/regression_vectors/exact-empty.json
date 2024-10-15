@@ -1,0 +1,42 @@
+{
+  "title": "Exact zero distinguishes an empty table from a missing one",
+  "args": [
+    "--expect-rows",
+    "outbox=0"
+  ],
+  "catalog": {
+    "public.outbox": {
+      "kind": "r",
+      "rows": 0
+    }
+  },
+  "queries": [
+    [
+      "public.outbox"
+    ],
+    [
+      "public.outbox",
+      1
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "outbox",
+        "table_exists": true,
+        "expected_rows": 0,
+        "observed_rows": 0,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.outbox: expected 0 rows, found 0",
+    "PASS: dump restored successfully"
+  ]
+}
