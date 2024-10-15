@@ -1,0 +1,42 @@
+{
+  "title": "An exact limit can have more digits than its target",
+  "args": [
+    "--expect-rows",
+    "reports=99"
+  ],
+  "catalog": {
+    "public.reports": {
+      "kind": "r",
+      "rows": 100
+    }
+  },
+  "queries": [
+    [
+      "public.reports"
+    ],
+    [
+      "public.reports",
+      100
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "reports",
+        "table_exists": true,
+        "expected_rows": 99,
+        "observed_rows": 100,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.reports: expected 99 rows, found at least 100",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
