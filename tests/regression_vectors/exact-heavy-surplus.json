@@ -1,0 +1,42 @@
+{
+  "title": "A large exact surplus is not exposed as an exact total",
+  "args": [
+    "--expect-rows",
+    "logs=7"
+  ],
+  "catalog": {
+    "public.logs": {
+      "kind": "r",
+      "rows": 8000000
+    }
+  },
+  "queries": [
+    [
+      "public.logs"
+    ],
+    [
+      "public.logs",
+      8
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "logs",
+        "table_exists": true,
+        "expected_rows": 7,
+        "observed_rows": 8,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.logs: expected 7 rows, found at least 8",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
