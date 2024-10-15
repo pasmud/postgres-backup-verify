@@ -1,0 +1,42 @@
+{
+  "title": "A positive exact target reports an exact zero shortfall",
+  "args": [
+    "--expect-rows",
+    "users=5"
+  ],
+  "catalog": {
+    "public.users": {
+      "kind": "r",
+      "rows": 0
+    }
+  },
+  "queries": [
+    [
+      "public.users"
+    ],
+    [
+      "public.users",
+      6
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "users",
+        "table_exists": true,
+        "expected_rows": 5,
+        "observed_rows": 0,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.users: expected 5 rows, found 0",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
