@@ -1,0 +1,42 @@
+{
+  "title": "The largest exact target permits a 100001 query limit",
+  "args": [
+    "--expect-rows",
+    "events=100000"
+  ],
+  "catalog": {
+    "public.events": {
+      "kind": "r",
+      "rows": 100001
+    }
+  },
+  "queries": [
+    [
+      "public.events"
+    ],
+    [
+      "public.events",
+      100001
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "events",
+        "table_exists": true,
+        "expected_rows": 100000,
+        "observed_rows": 100001,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.events: expected 100000 rows, found at least 100001",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
