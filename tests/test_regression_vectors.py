@@ -95,7 +95,8 @@ def install_fake_psql(monkeypatch, vector):
         assert not pending, f"missing queries: {list(pending)}"
 
     tools = {"psql": "psql", "pg_restore": "pg_restore"}
-    monkeypatch.setattr(backup.os, "geteuid", lambda: 1000)
+    test_uid = backup.os.getuid() or 1
+    monkeypatch.setattr(backup.os, "geteuid", lambda: test_uid)
     monkeypatch.setattr(backup, "resolve_tools", lambda: tools)
     monkeypatch.setattr(backup, "local_cluster", cluster)
     monkeypatch.setattr(backup.subprocess, "run", execute)
