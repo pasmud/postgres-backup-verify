@@ -1,0 +1,42 @@
+{
+  "title": "100000 passes an exact target without setting the bound bit",
+  "args": [
+    "--expect-rows",
+    "events=100000"
+  ],
+  "catalog": {
+    "public.events": {
+      "kind": "r",
+      "rows": 100000
+    }
+  },
+  "queries": [
+    [
+      "public.events"
+    ],
+    [
+      "public.events",
+      100001
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "events",
+        "table_exists": true,
+        "expected_rows": 100000,
+        "observed_rows": 100000,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.events: expected 100000 rows, found 100000",
+    "PASS: dump restored successfully"
+  ]
+}
