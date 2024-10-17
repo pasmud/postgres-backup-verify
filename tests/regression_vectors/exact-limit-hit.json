@@ -1,0 +1,42 @@
+{
+  "title": "The first excess row is reported as a lower bound",
+  "args": [
+    "--expect-rows",
+    "labels=7"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 8
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      8
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "labels",
+        "table_exists": true,
+        "expected_rows": 7,
+        "observed_rows": 8,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.labels: expected 7 rows, found at least 8",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
