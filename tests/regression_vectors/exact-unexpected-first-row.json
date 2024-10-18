@@ -1,0 +1,42 @@
+{
+  "title": "Exact zero reads at most the first unexpected row",
+  "args": [
+    "--expect-rows",
+    "outbox=0"
+  ],
+  "catalog": {
+    "public.outbox": {
+      "kind": "r",
+      "rows": 1
+    }
+  },
+  "queries": [
+    [
+      "public.outbox"
+    ],
+    [
+      "public.outbox",
+      1
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "outbox",
+        "table_exists": true,
+        "expected_rows": 0,
+        "observed_rows": 1,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.outbox: expected 0 rows, found at least 1",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
