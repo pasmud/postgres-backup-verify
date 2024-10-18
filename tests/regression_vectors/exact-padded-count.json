@@ -1,0 +1,42 @@
+{
+  "title": "Six ASCII digits with leading zeros are a decimal target",
+  "args": [
+    "--expect-rows",
+    "labels=000012"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 12
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      13
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "labels",
+        "table_exists": true,
+        "expected_rows": 12,
+        "observed_rows": 12,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.labels: expected 12 rows, found 12",
+    "PASS: dump restored successfully"
+  ]
+}
