@@ -1,0 +1,42 @@
+{
+  "title": "Exact one reports an uncapped singleton count",
+  "args": [
+    "--expect-rows",
+    "settings=1"
+  ],
+  "catalog": {
+    "public.settings": {
+      "kind": "r",
+      "rows": 1
+    }
+  },
+  "queries": [
+    [
+      "public.settings"
+    ],
+    [
+      "public.settings",
+      2
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "settings",
+        "table_exists": true,
+        "expected_rows": 1,
+        "observed_rows": 1,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.settings: expected 1 rows, found 1",
+    "PASS: dump restored successfully"
+  ]
+}
