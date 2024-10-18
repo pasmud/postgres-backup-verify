@@ -1,0 +1,33 @@
+{
+  "title": "An exact zero on an absent qualified table does not count",
+  "args": [
+    "--expect-rows",
+    "Archive.Monthly=0"
+  ],
+  "catalog": {},
+  "queries": [
+    [
+      "Archive.Monthly"
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "Archive",
+        "table": "Monthly",
+        "table_exists": false,
+        "expected_rows": 0,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: Archive.Monthly: expected 0 rows; ordinary table not found",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
