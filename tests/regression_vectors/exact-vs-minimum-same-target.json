@@ -1,0 +1,62 @@
+{
+  "title": "The same restored count can fail exact and pass minimum",
+  "args": [
+    "--expect-rows",
+    "labels=5",
+    "--expect-rows-at-least",
+    "labels=5"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 6
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      6
+    ],
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      5
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "labels",
+        "table_exists": true,
+        "expected_rows": 5,
+        "observed_rows": 6,
+        "observed_rows_is_lower_bound": true
+      },
+      {
+        "status": "pass",
+        "kind": "min_rows",
+        "schema": "public",
+        "table": "labels",
+        "table_exists": true,
+        "expected_rows": 5,
+        "observed_rows": 5,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.labels: expected 5 rows, found at least 6",
+    "PASS: public.labels: expected at least 5 rows, found at least 5",
+    "FAIL: dump restored; 1 of 2 expectations failed"
+  ]
+}
