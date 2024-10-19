@@ -1,0 +1,66 @@
+{
+  "title": "Same-named tables in two schemas have independent counts",
+  "args": [
+    "--expect-rows",
+    "Archive.jobs=18",
+    "--expect-rows",
+    "public.jobs=3"
+  ],
+  "catalog": {
+    "public.jobs": {
+      "kind": "r",
+      "rows": 3
+    },
+    "Archive.jobs": {
+      "kind": "r",
+      "rows": 18
+    }
+  },
+  "queries": [
+    [
+      "Archive.jobs"
+    ],
+    [
+      "Archive.jobs",
+      19
+    ],
+    [
+      "public.jobs"
+    ],
+    [
+      "public.jobs",
+      4
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "Archive",
+        "table": "jobs",
+        "table_exists": true,
+        "expected_rows": 18,
+        "observed_rows": 18,
+        "observed_rows_is_lower_bound": false
+      },
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "jobs",
+        "table_exists": true,
+        "expected_rows": 3,
+        "observed_rows": 3,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: Archive.jobs: expected 18 rows, found 18",
+    "PASS: public.jobs: expected 3 rows, found 3",
+    "PASS: dump restored successfully"
+  ]
+}
