@@ -1,0 +1,42 @@
+{
+  "title": "A minimum never probes 100001 even above the maximum",
+  "args": [
+    "--expect-rows-at-least",
+    "events=100000"
+  ],
+  "catalog": {
+    "public.events": {
+      "kind": "r",
+      "rows": 100001
+    }
+  },
+  "queries": [
+    [
+      "public.events"
+    ],
+    [
+      "public.events",
+      100000
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "min_rows",
+        "schema": "public",
+        "table": "events",
+        "table_exists": true,
+        "expected_rows": 100000,
+        "observed_rows": 100000,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.events: expected at least 100000 rows, found at least 100000",
+    "PASS: dump restored successfully"
+  ]
+}
