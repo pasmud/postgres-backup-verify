@@ -1,0 +1,42 @@
+{
+  "title": "A minimum stops exactly at its nonzero threshold",
+  "args": [
+    "--expect-rows-at-least",
+    "Sales.Orders=31"
+  ],
+  "catalog": {
+    "Sales.Orders": {
+      "kind": "r",
+      "rows": 31
+    }
+  },
+  "queries": [
+    [
+      "Sales.Orders"
+    ],
+    [
+      "Sales.Orders",
+      31
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "min_rows",
+        "schema": "Sales",
+        "table": "Orders",
+        "table_exists": true,
+        "expected_rows": 31,
+        "observed_rows": 31,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "PASS: Sales.Orders: expected at least 31 rows, found at least 31",
+    "PASS: dump restored successfully"
+  ]
+}
