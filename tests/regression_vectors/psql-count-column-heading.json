@@ -1,0 +1,35 @@
+{
+  "title": "Aligned psql output with a count heading is invalid",
+  "args": [
+    "--expect-rows",
+    "labels=9"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      10
+    ]
+  ],
+  "psql_reply": {
+    "call": 2,
+    "stdout": " count\n-------\n 2\n"
+  },
+  "exit": 2,
+  "json": {
+    "status": "error",
+    "checks": [],
+    "error": "unexpected row count result from psql"
+  },
+  "text": [
+    "verification error: unexpected row count result from psql"
+  ]
+}
