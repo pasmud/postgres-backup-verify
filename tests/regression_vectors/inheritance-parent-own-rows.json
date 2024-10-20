@@ -1,0 +1,67 @@
+{
+  "title": "Empty parent does not count its inherited child rows",
+  "args": [
+    "--expect-rows",
+    "events=0",
+    "--expect-rows",
+    "history.events=4"
+  ],
+  "catalog": {
+    "public.events": {
+      "kind": "r",
+      "rows": 0,
+      "descendant_rows": 4
+    },
+    "history.events": {
+      "kind": "r",
+      "rows": 4
+    }
+  },
+  "queries": [
+    [
+      "public.events"
+    ],
+    [
+      "public.events",
+      1
+    ],
+    [
+      "history.events"
+    ],
+    [
+      "history.events",
+      5
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "events",
+        "table_exists": true,
+        "expected_rows": 0,
+        "observed_rows": 0,
+        "observed_rows_is_lower_bound": false
+      },
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "history",
+        "table": "events",
+        "table_exists": true,
+        "expected_rows": 4,
+        "observed_rows": 4,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.events: expected 0 rows, found 0",
+    "PASS: history.events: expected 4 rows, found 4",
+    "PASS: dump restored successfully"
+  ]
+}
