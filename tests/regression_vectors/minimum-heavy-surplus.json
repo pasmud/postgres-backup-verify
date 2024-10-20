@@ -1,0 +1,42 @@
+{
+  "title": "A minimum on a large relation reports only the threshold",
+  "args": [
+    "--expect-rows-at-least",
+    "logs=25"
+  ],
+  "catalog": {
+    "public.logs": {
+      "kind": "r",
+      "rows": 8000000
+    }
+  },
+  "queries": [
+    [
+      "public.logs"
+    ],
+    [
+      "public.logs",
+      25
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "min_rows",
+        "schema": "public",
+        "table": "logs",
+        "table_exists": true,
+        "expected_rows": 25,
+        "observed_rows": 25,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.logs: expected at least 25 rows, found at least 25",
+    "PASS: dump restored successfully"
+  ]
+}
