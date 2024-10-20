@@ -1,0 +1,98 @@
+{
+  "title": "Mixed checks preserve order and count both failures",
+  "args": [
+    "--expect-rows-at-least",
+    "queue=8",
+    "--expect-table",
+    "audit",
+    "--expect-table",
+    "missing",
+    "--expect-rows",
+    "queue=7"
+  ],
+  "catalog": {
+    "public.queue": {
+      "kind": "r",
+      "rows": 7
+    },
+    "public.audit": {
+      "kind": "r",
+      "rows": 1
+    }
+  },
+  "queries": [
+    [
+      "public.queue"
+    ],
+    [
+      "public.queue",
+      8
+    ],
+    [
+      "public.audit"
+    ],
+    [
+      "public.missing"
+    ],
+    [
+      "public.queue"
+    ],
+    [
+      "public.queue",
+      8
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "min_rows",
+        "schema": "public",
+        "table": "queue",
+        "table_exists": true,
+        "expected_rows": 8,
+        "observed_rows": 7,
+        "observed_rows_is_lower_bound": false
+      },
+      {
+        "status": "pass",
+        "kind": "table",
+        "schema": "public",
+        "table": "audit",
+        "table_exists": true,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      },
+      {
+        "status": "fail",
+        "kind": "table",
+        "schema": "public",
+        "table": "missing",
+        "table_exists": false,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      },
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "queue",
+        "table_exists": true,
+        "expected_rows": 7,
+        "observed_rows": 7,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.queue: expected at least 8 rows, found 7",
+    "PASS: public.audit: ordinary table exists",
+    "FAIL: public.missing: ordinary table not found",
+    "PASS: public.queue: expected 7 rows, found 7",
+    "FAIL: dump restored; 2 of 4 expectations failed"
+  ]
+}
