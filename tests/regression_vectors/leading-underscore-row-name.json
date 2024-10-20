@@ -1,0 +1,42 @@
+{
+  "title": "A row query preserves leading underscores and case",
+  "args": [
+    "--expect-rows-at-least",
+    "_Import._Batch7=7"
+  ],
+  "catalog": {
+    "_Import._Batch7": {
+      "kind": "r",
+      "rows": 8
+    }
+  },
+  "queries": [
+    [
+      "_Import._Batch7"
+    ],
+    [
+      "_Import._Batch7",
+      7
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "min_rows",
+        "schema": "_Import",
+        "table": "_Batch7",
+        "table_exists": true,
+        "expected_rows": 7,
+        "observed_rows": 7,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "PASS: _Import._Batch7: expected at least 7 rows, found at least 7",
+    "PASS: dump restored successfully"
+  ]
+}
