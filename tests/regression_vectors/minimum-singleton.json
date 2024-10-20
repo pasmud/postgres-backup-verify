@@ -1,0 +1,42 @@
+{
+  "title": "Minimum one passes on a singleton and marks the bound",
+  "args": [
+    "--expect-rows-at-least",
+    "settings=1"
+  ],
+  "catalog": {
+    "public.settings": {
+      "kind": "r",
+      "rows": 1
+    }
+  },
+  "queries": [
+    [
+      "public.settings"
+    ],
+    [
+      "public.settings",
+      1
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "min_rows",
+        "schema": "public",
+        "table": "settings",
+        "table_exists": true,
+        "expected_rows": 1,
+        "observed_rows": 1,
+        "observed_rows_is_lower_bound": true
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.settings: expected at least 1 rows, found at least 1",
+    "PASS: dump restored successfully"
+  ]
+}
