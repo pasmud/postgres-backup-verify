@@ -1,0 +1,42 @@
+{
+  "title": "A positive minimum observes zero on an empty table",
+  "args": [
+    "--expect-rows-at-least",
+    "users=1"
+  ],
+  "catalog": {
+    "public.users": {
+      "kind": "r",
+      "rows": 0
+    }
+  },
+  "queries": [
+    [
+      "public.users"
+    ],
+    [
+      "public.users",
+      1
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "min_rows",
+        "schema": "public",
+        "table": "users",
+        "table_exists": true,
+        "expected_rows": 1,
+        "observed_rows": 0,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.users: expected at least 1 rows, found 0",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
