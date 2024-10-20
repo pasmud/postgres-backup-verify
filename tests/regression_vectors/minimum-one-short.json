@@ -1,0 +1,42 @@
+{
+  "title": "A minimum just below threshold reports an exact shortfall",
+  "args": [
+    "--expect-rows-at-least",
+    "Sales.Orders=31"
+  ],
+  "catalog": {
+    "Sales.Orders": {
+      "kind": "r",
+      "rows": 30
+    }
+  },
+  "queries": [
+    [
+      "Sales.Orders"
+    ],
+    [
+      "Sales.Orders",
+      31
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "min_rows",
+        "schema": "Sales",
+        "table": "Orders",
+        "table_exists": true,
+        "expected_rows": 31,
+        "observed_rows": 30,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: Sales.Orders: expected at least 31 rows, found 30",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
