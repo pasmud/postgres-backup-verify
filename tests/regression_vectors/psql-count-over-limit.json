@@ -1,0 +1,35 @@
+{
+  "title": "A count above the limit can still have the allowed width",
+  "args": [
+    "--expect-rows",
+    "labels=9"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      10
+    ]
+  ],
+  "psql_reply": {
+    "call": 2,
+    "stdout": "11\n"
+  },
+  "exit": 2,
+  "json": {
+    "status": "error",
+    "checks": [],
+    "error": "unexpected row count result from psql"
+  },
+  "text": [
+    "verification error: unexpected row count result from psql"
+  ]
+}
