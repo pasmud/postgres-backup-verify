@@ -1,0 +1,37 @@
+{
+  "title": "A failed count falls back to stdout when stderr is blank",
+  "args": [
+    "--expect-rows",
+    "labels=9"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      10
+    ]
+  ],
+  "psql_reply": {
+    "call": 2,
+    "exit": 3,
+    "stdout": " query canceled\n",
+    "stderr": " \n"
+  },
+  "exit": 2,
+  "json": {
+    "status": "error",
+    "checks": [],
+    "error": "psql exited 3: query canceled"
+  },
+  "text": [
+    "verification error: psql exited 3: query canceled"
+  ]
+}
