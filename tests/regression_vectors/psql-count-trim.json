@@ -1,0 +1,46 @@
+{
+  "title": "Psql count parsing strips outer whitespace",
+  "args": [
+    "--expect-rows",
+    "labels=9"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      10
+    ]
+  ],
+  "psql_reply": {
+    "call": 2,
+    "stdout": "\t2 \r\n"
+  },
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "public",
+        "table": "labels",
+        "table_exists": true,
+        "expected_rows": 9,
+        "observed_rows": 2,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.labels: expected 9 rows, found 2",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
