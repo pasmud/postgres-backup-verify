@@ -27,6 +27,11 @@ def test_restore_and_check_synthetic_archive(tmp_path, capsys):
                 tools["psql"], *connection, "-d", backup.DATABASE, "-X", "-v", "ON_ERROR_STOP=1",
                 "-c", "CREATE TABLE public.labels (id integer PRIMARY KEY, label text NOT NULL)",
                 "-c", "INSERT INTO public.labels VALUES (1, 'synthetic-a'), (2, 'synthetic-b')",
+                "-c", 'CREATE SCHEMA "Inventory"',
+                "-c", 'CREATE TABLE "Inventory"."ArchivedLabels" () INHERITS (public.labels)',
+                "-c", """INSERT INTO "Inventory"."ArchivedLabels" VALUES (3, 'synthetic-archive')""",
+                "-c", 'CREATE TABLE "Inventory"."Empty" (id integer)',
+                "-c", 'CREATE VIEW "Inventory"."LabelView" AS SELECT id, label FROM public.labels',
             ],
             env,
         )
@@ -37,15 +42,34 @@ def test_restore_and_check_synthetic_archive(tmp_path, capsys):
     assert list(scratch.iterdir()) == []
 
     args = [str(dump), "--scratch-dir", str(scratch), "--json"]
-    assert backup.main([*args, "--expect-rows", "labels=2"]) == 0
+    assert backup.main([
+        *args, "--expect-rows", "labels=2", "--expect-rows-at-least", "labels=1",
+        "--expect-rows", "Inventory.ArchivedLabels=1", "--expect-rows", "Inventory.Empty=0",
+    ]) == 0
     report = json.loads(capsys.readouterr().out)
     assert report["status"] == "pass"
-    assert report["checks"][0]["observed_rows"] == 2
-    assert report["checks"][0]["observed_rows_is_lower_bound"] is False
+    exact, minimum, archived, empty = report["checks"]
+    assert exact["observed_rows"] == 2  # Excludes the inherited child row.
+    assert exact["observed_rows_is_lower_bound"] is False
+    assert minimum["kind"] == "min_rows"
+    assert minimum["observed_rows"] == 1
+    assert minimum["observed_rows_is_lower_bound"] is True
+    assert archived["observed_rows"] == 1
+    assert empty["observed_rows"] == 0
+    assert list(scratch.iterdir()) == []
 
-    assert backup.main([*args, "--expect-rows", "labels=1", "--expect-table", "missing"]) == 1
+    assert backup.main([
+        *args, "--expect-rows", "labels=1", "--expect-rows-at-least", "labels=3",
+        "--expect-table", "missing", "--expect-table", "inventory.Empty",
+        "--expect-table", "Inventory.LabelView",
+    ]) == 1
     report = json.loads(capsys.readouterr().out)
     assert report["status"] == "fail"
-    assert report["checks"][0]["observed_rows_is_lower_bound"] is True
-    assert report["checks"][1]["table_exists"] is False
+    excess, shortfall, missing, wrong_case, view = report["checks"]
+    assert excess["status"] == "fail"
+    assert excess["observed_rows_is_lower_bound"] is True
+    assert shortfall["status"] == "fail"
+    assert shortfall["observed_rows"] == 2
+    assert shortfall["observed_rows_is_lower_bound"] is False
+    assert [check["table_exists"] for check in (missing, wrong_case, view)] == [False, False, False]
     assert list(scratch.iterdir()) == []

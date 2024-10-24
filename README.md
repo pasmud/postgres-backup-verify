@@ -24,7 +24,7 @@ python3 verify_backup.py sample.dump --scratch-dir /tmp \
 
 This example expects an archive produced by `pg_dump -Fc` that contains an
 ordinary table `public.labels` with two rows. The [integration test](tests/test_postgres.py)
-creates exactly that archive from synthetic data in a separate disposable
+creates a matching archive from synthetic data in a separate disposable
 cluster. Use `--expect-rows-at-least public.labels=1` when a table is expected to
 grow across backups. All three expectation flags can be repeated and mixed, up
 to 32 checks per run. Unqualified names refer to `public`; names are matched
@@ -62,7 +62,11 @@ REQUIRE_POSTGRES_TESTS=1 python3 -m pytest -q tests/test_postgres.py
 ```
 
 The first command runs unit tests and the PostgreSQL integration if the tools
-are present. The second makes missing PostgreSQL tools an error. GitHub CI runs
-the real restore test with the required binaries installed.
+are present. The second makes missing PostgreSQL tools an error. The real
+restore fixture covers exact and minimum counts, an empty table, case-sensitive
+names, and rejection of views as ordinary tables. Row checks count only rows
+in the named table; the fixture verifies that inherited child rows are not
+included in a parent's count. GitHub CI runs the real restore test with the
+required binaries installed.
 
 [MIT license](LICENSE).
