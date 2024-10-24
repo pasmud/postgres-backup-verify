@@ -1,0 +1,50 @@
+{
+  "title": "A later psql error discards completed checks and stops",
+  "args": [
+    "--expect-rows",
+    "labels=2",
+    "--expect-rows-at-least",
+    "archive=4",
+    "--expect-table",
+    "labels"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    },
+    "public.archive": {
+      "kind": "r",
+      "rows": 6
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ],
+    [
+      "public.labels",
+      3
+    ],
+    [
+      "public.archive"
+    ],
+    [
+      "public.archive",
+      4
+    ]
+  ],
+  "psql_reply": {
+    "call": 4,
+    "stdout": "5\n"
+  },
+  "exit": 2,
+  "json": {
+    "status": "error",
+    "checks": [],
+    "error": "unexpected row count result from psql"
+  },
+  "text": [
+    "verification error: unexpected row count result from psql"
+  ]
+}
