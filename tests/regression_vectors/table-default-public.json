@@ -1,0 +1,38 @@
+{
+  "title": "An unqualified table check finds public without counting",
+  "args": [
+    "--expect-table",
+    "audit_log"
+  ],
+  "catalog": {
+    "public.audit_log": {
+      "kind": "r",
+      "rows": 4
+    }
+  },
+  "queries": [
+    [
+      "public.audit_log"
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "table",
+        "schema": "public",
+        "table": "audit_log",
+        "table_exists": true,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.audit_log: ordinary table exists",
+    "PASS: dump restored successfully"
+  ]
+}
