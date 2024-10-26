@@ -1,0 +1,38 @@
+{
+  "title": "Both components of a mixed-case name are preserved",
+  "args": [
+    "--expect-table",
+    "Sales.Orders"
+  ],
+  "catalog": {
+    "Sales.Orders": {
+      "kind": "r",
+      "rows": 3
+    }
+  },
+  "queries": [
+    [
+      "Sales.Orders"
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "table",
+        "schema": "Sales",
+        "table": "Orders",
+        "table_exists": true,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: Sales.Orders: ordinary table exists",
+    "PASS: dump restored successfully"
+  ]
+}
