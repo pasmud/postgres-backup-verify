@@ -1,0 +1,14 @@
+{
+  "title": "A restore with no expectations issues no psql queries",
+  "args": [],
+  "catalog": {},
+  "queries": [],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": []
+  },
+  "text": [
+    "PASS: dump restored successfully"
+  ]
+}
