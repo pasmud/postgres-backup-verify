@@ -1,0 +1,38 @@
+{
+  "title": "Digits after the first character are valid in both names",
+  "args": [
+    "--expect-table",
+    "staging2.Batch2024"
+  ],
+  "catalog": {
+    "staging2.Batch2024": {
+      "kind": "r",
+      "rows": 1
+    }
+  },
+  "queries": [
+    [
+      "staging2.Batch2024"
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "table",
+        "schema": "staging2",
+        "table": "Batch2024",
+        "table_exists": true,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: staging2.Batch2024: ordinary table exists",
+    "PASS: dump restored successfully"
+  ]
+}
