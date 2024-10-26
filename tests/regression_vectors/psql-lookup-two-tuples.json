@@ -1,0 +1,31 @@
+{
+  "title": "Lookup rejects multiple tuples even if each is boolean",
+  "args": [
+    "--expect-rows",
+    "labels=9"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ]
+  ],
+  "psql_reply": {
+    "call": 1,
+    "stdout": "t\nf\n"
+  },
+  "exit": 2,
+  "json": {
+    "status": "error",
+    "checks": [],
+    "error": "unexpected table lookup result from psql"
+  },
+  "text": [
+    "verification error: unexpected table lookup result from psql"
+  ]
+}
