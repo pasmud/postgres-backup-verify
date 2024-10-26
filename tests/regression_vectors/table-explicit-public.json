@@ -1,0 +1,38 @@
+{
+  "title": "An explicitly named public table may be empty",
+  "args": [
+    "--expect-table",
+    "public.empty_queue"
+  ],
+  "catalog": {
+    "public.empty_queue": {
+      "kind": "r",
+      "rows": 0
+    }
+  },
+  "queries": [
+    [
+      "public.empty_queue"
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "table",
+        "schema": "public",
+        "table": "empty_queue",
+        "table_exists": true,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: public.empty_queue: ordinary table exists",
+    "PASS: dump restored successfully"
+  ]
+}
