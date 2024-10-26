@@ -1,0 +1,42 @@
+{
+  "title": "A row query quotes SQL keywords as identifiers",
+  "args": [
+    "--expect-rows",
+    "select.order=4"
+  ],
+  "catalog": {
+    "select.order": {
+      "kind": "r",
+      "rows": 4
+    }
+  },
+  "queries": [
+    [
+      "select.order"
+    ],
+    [
+      "select.order",
+      5
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "select",
+        "table": "order",
+        "table_exists": true,
+        "expected_rows": 4,
+        "observed_rows": 4,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: select.order: expected 4 rows, found 4",
+    "PASS: dump restored successfully"
+  ]
+}
