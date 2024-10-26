@@ -1,0 +1,31 @@
+{
+  "title": "A timed-out lookup reports the psql command deadline",
+  "args": [
+    "--expect-rows",
+    "labels=9"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ]
+  ],
+  "psql_reply": {
+    "call": 1,
+    "timeout": true
+  },
+  "exit": 2,
+  "json": {
+    "status": "error",
+    "checks": [],
+    "error": "psql timed out after 10s"
+  },
+  "text": [
+    "verification error: psql timed out after 10s"
+  ]
+}
