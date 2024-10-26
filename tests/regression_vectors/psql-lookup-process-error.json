@@ -1,0 +1,33 @@
+{
+  "title": "A nonzero lookup exit prefers stderr over valid stdout",
+  "args": [
+    "--expect-rows",
+    "labels=9"
+  ],
+  "catalog": {
+    "public.labels": {
+      "kind": "r",
+      "rows": 2
+    }
+  },
+  "queries": [
+    [
+      "public.labels"
+    ]
+  ],
+  "psql_reply": {
+    "call": 1,
+    "exit": 2,
+    "stdout": "t\n",
+    "stderr": "  connection unavailable\n"
+  },
+  "exit": 2,
+  "json": {
+    "status": "error",
+    "checks": [],
+    "error": "psql exited 2: connection unavailable"
+  },
+  "text": [
+    "verification error: psql exited 2: connection unavailable"
+  ]
+}
