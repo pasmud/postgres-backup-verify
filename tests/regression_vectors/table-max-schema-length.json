@@ -1,0 +1,38 @@
+{
+  "title": "A 63-character schema is matched without truncation",
+  "args": [
+    "--expect-table",
+    "archive_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.jobs"
+  ],
+  "catalog": {
+    "archive_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.jobs": {
+      "kind": "r",
+      "rows": 6
+    }
+  },
+  "queries": [
+    [
+      "archive_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.jobs"
+    ]
+  ],
+  "exit": 0,
+  "json": {
+    "status": "pass",
+    "checks": [
+      {
+        "status": "pass",
+        "kind": "table",
+        "schema": "archive_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "table": "jobs",
+        "table_exists": true,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "PASS: archive_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.jobs: ordinary table exists",
+    "PASS: dump restored successfully"
+  ]
+}
