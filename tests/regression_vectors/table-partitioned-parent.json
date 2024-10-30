@@ -1,0 +1,37 @@
+{
+  "title": "A partitioned root is not an ordinary table",
+  "args": [
+    "--expect-table",
+    "events"
+  ],
+  "catalog": {
+    "public.events": {
+      "kind": "p"
+    }
+  },
+  "queries": [
+    [
+      "public.events"
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "table",
+        "schema": "public",
+        "table": "events",
+        "table_exists": false,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.events: ordinary table not found",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
