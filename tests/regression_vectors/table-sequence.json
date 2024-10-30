@@ -1,0 +1,37 @@
+{
+  "title": "A sequence is not an ordinary table",
+  "args": [
+    "--expect-table",
+    "orders_id_seq"
+  ],
+  "catalog": {
+    "public.orders_id_seq": {
+      "kind": "S"
+    }
+  },
+  "queries": [
+    [
+      "public.orders_id_seq"
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "table",
+        "schema": "public",
+        "table": "orders_id_seq",
+        "table_exists": false,
+        "expected_rows": null,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: public.orders_id_seq: ordinary table not found",
+    "FAIL: dump restored; 1 of 1 expectations failed"
+  ]
+}
