@@ -1,0 +1,61 @@
+{
+  "title": "Lookup distinguishes a table and a view with the same name",
+  "args": [
+    "--expect-rows",
+    "reporting.orders=12",
+    "--expect-rows",
+    "orders=12"
+  ],
+  "catalog": {
+    "public.orders": {
+      "kind": "r",
+      "rows": 12
+    },
+    "reporting.orders": {
+      "kind": "v"
+    }
+  },
+  "queries": [
+    [
+      "reporting.orders"
+    ],
+    [
+      "public.orders"
+    ],
+    [
+      "public.orders",
+      13
+    ]
+  ],
+  "exit": 1,
+  "json": {
+    "status": "fail",
+    "checks": [
+      {
+        "status": "fail",
+        "kind": "rows",
+        "schema": "reporting",
+        "table": "orders",
+        "table_exists": false,
+        "expected_rows": 12,
+        "observed_rows": null,
+        "observed_rows_is_lower_bound": false
+      },
+      {
+        "status": "pass",
+        "kind": "rows",
+        "schema": "public",
+        "table": "orders",
+        "table_exists": true,
+        "expected_rows": 12,
+        "observed_rows": 12,
+        "observed_rows_is_lower_bound": false
+      }
+    ]
+  },
+  "text": [
+    "FAIL: reporting.orders: expected 12 rows; ordinary table not found",
+    "PASS: public.orders: expected 12 rows, found 12",
+    "FAIL: dump restored; 1 of 2 expectations failed"
+  ]
+}
